@@ -67,10 +67,14 @@ public class Robot extends IterativeRobot {
 		if (goUp && speed > 0){
 		verticalMotor.set(speed);
 		System.out.println("Going up at a speed of" + speed);
+			
     	}
-		if (goDown && speed < 0){
+		else if (goDown && speed < 0){
 		verticalMotor.set(speed);
 		System.out.println("Going down at a speed of" + speed);
+		}
+		else{
+		verticalMotor.set(0);	
 		}
 	}
 	
