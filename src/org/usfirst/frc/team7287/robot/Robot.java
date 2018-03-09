@@ -27,6 +27,8 @@ public class Robot extends IterativeRobot {
 	CANTalon clawMotor;
 	boolean shouldGrab; 
 	DigitalInput limitSwitch;
+	canGoUp = true;
+	canGoDown = true;
 	
 	@Override
 	public void robotInit() {
@@ -41,9 +43,36 @@ public class Robot extends IterativeRobot {
 		int mode = CANTalon.TalonControlMode.PercentVbus.ordinal();
 		clawMotor.setControlMode(mode);
 		shouldGrab = false;
-		limitSwitch = new DigitalInput(0);
+		bottomLimit = new DigitalInput(0);
+		topLimit = new DigitalInput (1);
 	}
 	
+	private void clawVerticalSafteyCheck() {
+		if (topLimit){
+		goUp = false;
+		}
+		else{
+		goUp = true;
+		}
+		
+		if(bottomLimit){
+		goDown = false;
+		}
+		else{
+		goDown = true;
+		}
+	}
+	
+	private void upDown(double speed){
+		if (goUp && speed > 0){
+		verticalMotor.set(speed);
+		System.out.println("Going up at a speed of" + speed);
+    	}
+		if (goDown && speed < 0){
+		verticalMotor.set(speed);
+		System.out.println("Going down at a speed of" + speed);
+		}
+	}
 	
 
 //	private void clawVerticalSafteyCheck(DigitalInput topSwitch, DigitalInput bottomSwitch, CANTalon motor) {
@@ -70,6 +99,7 @@ public class Robot extends IterativeRobot {
 	
 	@Override
 	public void autonomousPeriodic() {
+		clawVerticalSafteyCheck();
 		initialCubeDrop();
 //		clawVerticalSafteyCheck(bottomSwitch, topSwitch, verticalMotor);
 	}
@@ -107,6 +137,7 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopPeriodic() {
 		System.out.println("was pushed: " + limitSwitch.get());
+		clawVerticalSafteyCheck();
 //		clawHeightSensor.readClawValues();
 		if (stick.getRawButton(1)) {
 			grab(0.3);
@@ -114,6 +145,13 @@ public class Robot extends IterativeRobot {
 		if (stick.getRawButton(2)) {
 			grab(-0.3);
 		}
+		if (stick.getRawButton(3)){
+        	    	upDown(0.3);
+        	}
+		//values of sticks will actually be provided as a number between 0 and 1023
+        	if(stick.getRawButton(4)){
+            		upDown(-0.3);
+        
 	//		Speed gearing system to swap between precision speed and high speed when right bumper is pressed
 		if (stick.getRawButton(6)) {
 			teleopSpeed = (teleopSpeed == 0.50) ? 1.0 : 0.65;
